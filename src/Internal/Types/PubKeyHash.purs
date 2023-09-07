@@ -119,7 +119,7 @@ instance EncodeAeson PaymentPubKeyHash where
 instance DecodeAeson PaymentPubKeyHash where
   decodeAeson json = do
     obj <- decodeAeson json
-    PaymentPubKeyHash <<< PubKeyHash <$> obj .: "unPaymentPubKeyHash"
+    wrap <$> obj .: "unPaymentPubKeyHash"
 
 instance Show PaymentPubKeyHash where
   show = genericShow
