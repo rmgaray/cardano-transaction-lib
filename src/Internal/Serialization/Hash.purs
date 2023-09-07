@@ -118,11 +118,14 @@ instance FromMetadata Ed25519KeyHash where
 instance DecodeAeson Ed25519KeyHash where
   -- ed25519KeyHashFromBech32 goes from Bech32String directly although this
   -- feels unsafe.
-  decodeAeson = caseAesonString
-    (Left $ TypeMismatch "Expected Plutus BuiltinByteString")
+  decodeAeson x = caseAesonString
+    ( Left $ TypeMismatch $ "Expected Plutus BuiltinByteString but got " <> show
+        x
+    )
     ( note (TypeMismatch "Invalid Ed25519KeyHash") <<< ed25519KeyHashFromBytes
         <=< note (TypeMismatch "Invalid ByteArray") <<< hexToByteArray
     )
+    x
 
 instance EncodeAeson Ed25519KeyHash where
   encodeAeson = encodeAeson <<< rawBytesToHex <<< ed25519KeyHashToBytes
