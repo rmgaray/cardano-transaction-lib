@@ -12,6 +12,7 @@
 module Ctl.Internal.Metadata.Cip25.V2
   ( Cip25Metadata(Cip25Metadata)
   , Cip25MetadataEntry(Cip25MetadataEntry)
+  , metadataEntryToData
   , module Ctl.Internal.Metadata.Cip25.Common
   ) where
 
