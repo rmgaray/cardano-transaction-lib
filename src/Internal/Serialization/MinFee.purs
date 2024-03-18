@@ -15,6 +15,7 @@ import Ctl.Internal.Serialization.Hash (Ed25519KeyHash)
 import Ctl.Internal.Serialization.Types (ExUnitPrices, Transaction)
 import Ctl.Internal.Types.BigNum (BigNum)
 import Ctl.Internal.Types.BigNum as BigNum
+import Ctl.Internal.Types.CborBytes (cborBytesToHex)
 import Ctl.Internal.Types.ProtocolParameters
   ( ProtocolParameters(ProtocolParameters)
   )
@@ -25,7 +26,9 @@ import Data.Newtype (unwrap, wrap)
 import Data.Set (Set)
 import Data.Set as Set
 import Data.Tuple.Nested ((/\))
+import Effect (Effect)
 import Effect.Class (class MonadEffect, liftEffect)
+import Effect.Console (log)
 import Effect.Exception (Error, error)
 import Partial.Unsafe (unsafePartial)
 
@@ -47,7 +50,15 @@ calculateMinFeeCsl (ProtocolParameters pparams) selfSigners txNoSigs = do
   let exUnitPrices = pparams.prices
   exUnitPricesCsl <- liftEffect $ Serialization.convertExUnitPrices exUnitPrices
   let minScriptFee = BigNum.toBigInt (_minScriptFee exUnitPricesCsl cslTx)
+  cborHex <- liftEffect $ toCborHexHelper tx
+  liftEffect $ log $ "(calculateMinFee) tx with dummies: " <> cborHex
   pure $ wrap $ minFee + minScriptFee
+
+toCborHexHelper :: T.Transaction -> Effect String
+toCborHexHelper tx = do
+  cslTx <- Serialization.convertTransaction tx
+  let cb = Serialization.toBytes cslTx
+  pure $ cborBytesToHex cb
 
 -- | Adds fake signatures for each expected signature of a transaction.
 addFakeSignatures :: Set Ed25519KeyHash -> T.Transaction -> T.Transaction
